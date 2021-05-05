@@ -19,6 +19,11 @@ export default function SiteLayout({ children }) {
                       Account Settings
                     </a>
                   </Link>
+                  <Link href="/profiles/logo-uploading">
+                    <a className="ml-8 font-medium text-gray-900">
+                      Profile Logo
+                    </a>
+                  </Link>
                 </div>
                 <div className="mt-2">
                   <input

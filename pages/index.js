@@ -4,7 +4,7 @@ import { getLayout } from '../components/SiteLayout'
 
 function Home() {
   return (
-    <div className="mt-8 max-w-xl mx-auto px-8">
+    <div className="mt-8 max-w-3xl mx-auto px-8">
       <h1 className="text-center">
         <span className="block text-xl text-gray-600 leading-tight">
           Welcome to this
