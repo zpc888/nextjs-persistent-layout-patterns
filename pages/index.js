@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
-export default function Home() {
+import SiteLayout from '../components/SiteLayout'
+
+function Home() {
   return (
     <div className="mt-8 max-w-xl mx-auto px-8">
       <h1 className="text-center">
@@ -21,3 +23,7 @@ export default function Home() {
     </div>
   )
 }
+
+Home.layout = SiteLayout
+
+export default Home

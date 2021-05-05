@@ -1,3 +1,5 @@
+import AccountSettingsLayout from '../../components/AccountSettingsLayout'
+
 const Index = () => (
       <div>
         <div className="pt-6 pb-8 sm:pt-8">
@@ -48,5 +50,7 @@ const Index = () => (
         </div>
       </div>
 )
+
+Index.layout = AccountSettingsLayout
 
 export default Index

@@ -1,24 +1,14 @@
 import 'tailwindcss/tailwind.css'
 
 import SiteLayout from '../components/SiteLayout'
-import AccountSettingsLayout from '../components/AccountSettingsLayout'
 
-function MyApp({ Component, pageProps, router }) {
-  if (router.pathname.startsWith('/account-settings/')) {
+function MyApp({ Component, pageProps }) {
+  const Layout = Component.layout || SiteLayout
     return (
-      <SiteLayout>
-        <AccountSettingsLayout>
+      <Layout>
           <Component {...pageProps} />
-        </AccountSettingsLayout>
-      </SiteLayout>
+      </Layout>
     )
-  } else {
-    return (
-      <SiteLayout>
-        <Component {...pageProps} />
-      </SiteLayout>
-    )
-  }
 }
 
 export default MyApp

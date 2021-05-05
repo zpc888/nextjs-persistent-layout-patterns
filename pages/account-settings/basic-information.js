@@ -1,4 +1,5 @@
-export default function  BasicInformation() {
+import AccountSettingsLayout from '../../components/AccountSettingsLayout'
+function  BasicInformation() {
     return (
       <div>
         <div className="pt-6 pb-8 sm:pt-8">
@@ -62,3 +63,7 @@ export default function  BasicInformation() {
       </div>
 )
     }
+
+BasicInformation.layout = AccountSettingsLayout
+
+export default BasicInformation

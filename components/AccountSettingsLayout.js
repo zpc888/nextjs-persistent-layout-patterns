@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 
+import SiteLayout from './SiteLayout'
+
 function ActiveLink({children, href, className}) {
     const router = useRouter()
     return (
@@ -16,6 +18,7 @@ function ActiveLink({children, href, className}) {
 
 function AccountSettingsLayout({children}) {
     return (
+      <SiteLayout>
         <div className="max-w-3xl mx-auto px-8">
           <h1 className="text-2xl text-gray-900 font-semibold">Account Settings</h1>
     
@@ -50,6 +53,7 @@ function AccountSettingsLayout({children}) {
     
           <div>{children}</div>
         </div>
+      </SiteLayout>
     )
 }
 
