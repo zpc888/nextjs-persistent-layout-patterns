@@ -3,12 +3,8 @@ import 'tailwindcss/tailwind.css'
 import SiteLayout from '../components/SiteLayout'
 
 function MyApp({ Component, pageProps }) {
-  const Layout = Component.layout || SiteLayout
-    return (
-      <Layout>
-          <Component {...pageProps} />
-      </Layout>
-    )
+  const getLayout = Component.getLayout || (page => <SiteLayout children={page} />)
+  return getLayout( <Component {...pageProps} /> ) 
 }
 
 export default MyApp

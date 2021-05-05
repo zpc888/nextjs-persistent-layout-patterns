@@ -1,4 +1,4 @@
-import AccountSettingsLayout from '../../components/AccountSettingsLayout'
+import { getLayout } from '../../components/AccountSettingsLayout'
 function  BasicInformation() {
     return (
       <div>
@@ -64,6 +64,6 @@ function  BasicInformation() {
 )
     }
 
-BasicInformation.layout = AccountSettingsLayout
+BasicInformation.getLayout = getLayout
 
 export default BasicInformation

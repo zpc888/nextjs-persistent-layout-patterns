@@ -34,3 +34,5 @@ export default function SiteLayout({ children }) {
       </div>
     )
 }
+
+export const getLayout = ( page ) => <SiteLayout>{page}</SiteLayout>

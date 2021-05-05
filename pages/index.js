@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import SiteLayout from '../components/SiteLayout'
+import { getLayout } from '../components/SiteLayout'
 
 function Home() {
   return (
@@ -24,6 +24,6 @@ function Home() {
   )
 }
 
-Home.layout = SiteLayout
+Home.getLayout = getLayout
 
 export default Home

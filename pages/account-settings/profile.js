@@ -1,4 +1,4 @@
-import AccountSettingsLayout from '../../components/AccountSettingsLayout'
+import { getLayout } from '../../components/AccountSettingsLayout'
 
 const Index = () => (
       <div>
@@ -41,6 +41,6 @@ const Index = () => (
       </div>
 )
 
-Index.layout = AccountSettingsLayout
+Index.getLayout = getLayout
 
 export default Index
