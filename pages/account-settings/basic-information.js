@@ -1,8 +1,5 @@
-import AccountSettingsLayout from '../../components/AccountSettingsLayout'
-
 export default function  BasicInformation() {
     return (
-    <AccountSettingsLayout>
       <div>
         <div className="pt-6 pb-8 sm:pt-8">
           <p className="text-sm text-gray-700">
@@ -63,6 +60,5 @@ export default function  BasicInformation() {
           </button>
         </div>
       </div>
-    </AccountSettingsLayout>
 )
     }

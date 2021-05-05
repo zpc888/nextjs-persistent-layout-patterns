@@ -1,7 +1,4 @@
-import AccountSettingsLayout from '../../components/AccountSettingsLayout'
-
 const Index = () => (
-    <AccountSettingsLayout>
       <div>
         <div className="pt-6 pb-8 sm:pt-8">
           <p className="text-sm text-gray-700">Set your billing information.</p>
@@ -48,7 +45,6 @@ const Index = () => (
           </button>
         </div>
       </div>
-    </AccountSettingsLayout>
 )
 
 export default Index
