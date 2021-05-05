@@ -1,9 +1,7 @@
-import SiteLayout from '../../components/SiteLayout'
 import AccountSettingsLayout from '../../components/AccountSettingsLayout'
 
 export default function  BasicInformation() {
     return (
-  <SiteLayout>
     <AccountSettingsLayout>
       <div>
         <div className="pt-6 pb-8 sm:pt-8">
@@ -66,6 +64,5 @@ export default function  BasicInformation() {
         </div>
       </div>
     </AccountSettingsLayout>
-  </SiteLayout>
 )
     }

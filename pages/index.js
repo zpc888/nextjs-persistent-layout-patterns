@@ -1,9 +1,7 @@
-import SiteLayout from '../components/SiteLayout'
 import Link from 'next/link'
 
 export default function Home() {
   return (
-    <SiteLayout>
     <div className="mt-8 max-w-xl mx-auto px-8">
       <h1 className="text-center">
         <span className="block text-xl text-gray-600 leading-tight">
@@ -21,6 +19,5 @@ export default function Home() {
         </Link>
       </div>
     </div>
-  </SiteLayout>
   )
 }
