@@ -4,6 +4,8 @@ import 'react-image-crop/dist/ReactCrop.css'
 
 export default function LogoUploading() {
     const fileInputRef = useRef()  // HTMLInputElement
+    const croppedImgRef = useRef()  // HTMLInputElement
+    const [rotateAngle, setRotateAngle] = useState(0)  
     const [image, setImage] = useState()   // File
     const [imageRef, setImageRef] = useState()   // HTMLImageElement
     const [croppedImg, setCroppedImg] = useState()   // Image URL??
@@ -22,7 +24,12 @@ export default function LogoUploading() {
         } else {
             setPreview(null)
         }
-    }, [image])
+        if (rotateAngle) {
+            console.log(`rotate ${rotateAngle} degrees`)
+            console.log(`rotate on ${imageRef}`)
+            imageRef.style.transform = `rotate(${rotateAngle}deg)`
+        }
+    }, [image, rotateAngle])
 
     function makeClientCrop(newCrop) {
         if (imageRef && newCrop.width && newCrop.height) {
@@ -37,16 +44,37 @@ export default function LogoUploading() {
     }
 
     function getCroppedImg(imageR, newCrop, fileName) {
-        const canvas = document.createElement('canvas');
-        const scaleX = imageR.naturalWidth / imageR.width;
-        const scaleY = imageR.naturalHeight / imageR.height;
-        canvas.width = newCrop.width;
-        canvas.height = newCrop.height;
-        const ctx = canvas.getContext('2d');
+        let canvas = document.createElement('canvas');
         // ctx.fillStyle = '#fff';
-    
-        ctx.drawImage(
-          imageR,
+        let finalImgR = imageR;
+        if (rotateAngle != 0) {
+            canvas.width = imageR.width
+            canvas.height = imageR.height
+            const ctx = canvas.getContext('2d');
+            // convert to degrees
+            const toRotate = rotateAngle * Math.PI / 180;
+            // find center point to rotate
+            ctx.translate(canvas.width/2, canvas.height/2);
+            ctx.rotate(toRotate);
+            ctx.drawImage(imageR, -imageR.width/2, -imageR.height/2);
+            ctx.rotate(-toRotate);
+            ctx.translate(-canvas.width/2, -canvas.height/2);
+            // get base64 encoded rotated image
+            const rotatedImg = canvas.toDataURL('image/jpeg');
+            // create new Image source to continue
+            finalImgR = new Image();
+            finalImgR.src = rotatedImg;
+            canvas = document.createElement('canvas');
+        }
+
+        const scaleX = finalImgR.naturalWidth / finalImgR.width;
+        const scaleY = finalImgR.naturalHeight / finalImgR.height;
+        canvas.width = newCrop.width;
+        canvas.height = newCrop.height; 
+        const finalCtx = canvas.getContext('2d');
+
+        finalCtx.drawImage(
+          finalImgR,
           newCrop.x * scaleX,
           newCrop.y * scaleY,
           newCrop.width * scaleX,
@@ -75,6 +103,16 @@ export default function LogoUploading() {
         // });
       }
 
+    function sumbitCroppedImage(event) {
+        event.preventDefault();
+        fetch('/api/uploading', {
+            method: 'POST'
+            , mode: 'cors'
+            , headers: {'Content-Type': 'application/json'}
+            , body: JSON.stringify({data: croppedImg})
+        })
+    }
+
     return (
         <div className="mt-8 max-w-3xl mx-auto px-8">
             <form>
@@ -97,9 +135,18 @@ export default function LogoUploading() {
                     fileInputRef.current.click();
                     } }>Add Image</button>)
                 }
+                {preview && imageRef && (<>
+                <button onClick={ (event) => {
+                    event.preventDefault();
+                    setRotateAngle( (rotateAngle + 90)%360 )
+                }}>Rotate</button>
+                <input type="number" value={rotateAngle} onChange={e => setRotateAngle(e.target.value % 360)}></input>
+                </>)}
                 { preview && croppedImg && (
-                    <img alt="Crop" style={{ maxWidth: '100%' }} src={croppedImg} />
-                    // <Image alt="Crop" style={{ maxWidth: '100%' }} src={croppedImg} layout='fill' />
+                    <>
+                    <img alt="Crop" style={{ maxWidth: '100%' }} src={croppedImg} ref={croppedImgRef} />
+                    <button onClick={ (event) => sumbitCroppedImage(event)}>Submit</button>
+                    </>
                   )}
                 <input 
                     type="file" 
