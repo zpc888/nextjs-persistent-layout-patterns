@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from 'react'
+import { useDropzone } from 'react-dropzone'
 import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
 export default function LogoUploading() {
-    const fileInputRef = useRef()  // HTMLInputElement
+    // const fileInputRef = useRef()  // HTMLInputElement
     const croppedImgRef = useRef()  // HTMLInputElement
     const [rotateAngle, setRotateAngle] = useState(0)  
     const [image, setImage] = useState()   // File
@@ -13,6 +14,15 @@ export default function LogoUploading() {
     const [preview, setPreview] = useState()   // string
     // const [crop, setCrop] = useState({aspect: 16 / 9})   // string
     const [crop, setCrop] = useState({unit: 'px', x: 120, y : 200, width: 200, height: 200})   // string
+    const {getRootProps, getInputProps} = useDropzone({
+       accept: 'image/*',
+       maxFiles: 1, 
+       onDrop: acceptedFiles => {
+           if (acceptedFiles.length == 1 && acceptedFiles[0] && acceptedFiles[0].type.startsWith("image")) {
+                setImage(acceptedFiles[0])
+           }
+       }
+    });
 
     useEffect(() => {
         if (image) {
@@ -24,9 +34,9 @@ export default function LogoUploading() {
         } else {
             setPreview(null)
         }
-        if (rotateAngle) {
+        if (imageRef) {
             console.log(`rotate ${rotateAngle} degrees`)
-            console.log(`rotate on ${imageRef}`)
+            // console.log(`rotate on ${imageRef}`)
             imageRef.style.transform = `rotate(${rotateAngle}deg)`
         }
     }, [image, rotateAngle])
@@ -64,7 +74,7 @@ export default function LogoUploading() {
             // create new Image source to continue
             finalImgR = new Image();
             finalImgR.src = rotatedImg;
-            canvas = document.createElement('canvas');
+            // canvas = document.createElement('canvas');
         }
 
         const scaleX = finalImgR.naturalWidth / finalImgR.width;
@@ -74,33 +84,19 @@ export default function LogoUploading() {
         const finalCtx = canvas.getContext('2d');
 
         finalCtx.drawImage(
-          finalImgR,
-          newCrop.x * scaleX,
-          newCrop.y * scaleY,
-          newCrop.width * scaleX,
-          newCrop.height * scaleY,
-          0,
-          0,
-          newCrop.width,
-          newCrop.height
+            finalImgR,
+            newCrop.x * scaleX,
+            newCrop.y * scaleY,
+            newCrop.width * scaleX,
+            newCrop.height * scaleY,
+            0,
+            0,
+            newCrop.width,
+            newCrop.height
         );
         
         const base64Img = canvas.toDataURL('image/jpeg');
         return base64Img;
-        // return new Promise((resolve, reject) => {
-        //   canvas.toBlob(blob => {
-        //     if (!blob) {
-        //       //reject(new Error('Canvas is empty'));
-        //       console.error('Canvas is empty');
-        //       return;
-        //     }
-        //     blob.name = fileName;
-        //     // window.URL.revokeObjectURL(fileUrl);
-        //     // setFileUrl(window.URL.createObjectURL(blob));
-        //     // resolve(fileUrl);
-        //     resolve(blob);
-        //   }, 'image/jpeg');
-        // });
       }
 
     function sumbitCroppedImage(event) {
@@ -115,7 +111,6 @@ export default function LogoUploading() {
 
     return (
         <div className="mt-8 max-w-3xl mx-auto px-8">
-            <form>
                 { preview 
                 ?   ( <ReactCrop src={preview} crop={crop} 
                     ruleOfThirds 
@@ -124,16 +119,16 @@ export default function LogoUploading() {
                     onChange={(newCrop, percentCrop) => setCrop(newCrop) }
                 /> 
                 )
-                // ? (<img src={preview} style={{objectFit: 'cover'}} onClick={ () => {
-                //     setImage(null)
-                //     fileInputRef.current.value = null
-                // } } />)
-                : (<button 
-                    className="focus:outline-none text-sm py-2.5 px-5 rounded-md bg-blue-500 hover:bg-blue-600 hover:shadow-lg"
-                    onClick={ (event) => {
-                    event.preventDefault();
-                    fileInputRef.current.click();
-                    } }>Add Image</button>)
+                : (
+                    <section className='drop-container'>
+                        <div {...getRootProps({classname: 'dropzone'})} style={{display: 'flex', 'flex-direction': 'column', width: '100%', 'justify-content': 'center', 'align-items': 'center', height: '480px', border: 'dotted 1px'}}>
+                            <input {...getInputProps()} />
+                            <div style={{className:'my-6'}}>Drag a profile photo here</div>
+                            <div style={{className:'my-6'}}>-- or --</div>
+                            <div style={{className: 'my-6', border: 'solid 1px', padding: '2px'}}>Select a photo from your computer</div>
+                        </div>
+                    </section>
+                    )
                 }
                 {preview && imageRef && (<>
                 <button onClick={ (event) => {
@@ -148,21 +143,6 @@ export default function LogoUploading() {
                     <button onClick={ (event) => sumbitCroppedImage(event)}>Submit</button>
                     </>
                   )}
-                <input 
-                    type="file" 
-                    style={{ display: "none" }} 
-                    ref={fileInputRef}
-                    accept="image/*"
-                    onChange={ (event) => {
-                        const file = event.target.files[0]
-                        if (file && file.type.startsWith("image")) {
-                            setImage(file)
-                        } else {
-                            setImage(null)
-                        }
-                    }} 
-                />
-            </form>
         </div>
     )
 }
