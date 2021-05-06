@@ -48,8 +48,10 @@ export default function LogoUploading() {
                 newCrop,
                 'newCrop.jpeg'
             );
-            console.log(`cropped images: ${croppedImage}`);
-            setCroppedImg(croppedImage);
+            // console.log(`cropped images: ${croppedImage}`);
+            if (croppedImage) {
+                setCroppedImg(croppedImage);
+            }
         }
     }
 
@@ -63,6 +65,7 @@ export default function LogoUploading() {
             const ctx = canvas.getContext('2d');
             // convert to degrees
             const toRotate = rotateAngle * Math.PI / 180;
+            console.log(`canvas width=${canvas.width} height=${canvas.height} rotate=${rotateAngle} toRotate=${toRotate}`)
             // find center point to rotate
             ctx.translate(canvas.width/2, canvas.height/2);
             ctx.rotate(toRotate);
@@ -72,16 +75,35 @@ export default function LogoUploading() {
             // get base64 encoded rotated image
             const rotatedImg = canvas.toDataURL('image/jpeg');
             // create new Image source to continue
-            finalImgR = new Image();
-            finalImgR.src = rotatedImg;
+            // finalImgR = rotateAngle === 90 || rotateAngle === -90 || rotateAngle === 270 || rotateAngle === -270 
+            //     ? new Image(imageR.height, imageR.width)
+            //     : new Image(imageR.width, imageR.height);
+            // finalImgR = new Image(imageR.width, imageR.height)
+            finalImgR = new Image()
             // canvas = document.createElement('canvas');
+            finalImgR.src = rotatedImg;
+            finalImgR.onload = function() {
+                console.log(`loaded final image=(${finalImgR.naturalWidth},${finalImgR.naturalHeight},${finalImgR.width},${finalImgR.height})`)
+                const croppedResult = doCrop(finalImgR, canvas, newCrop);
+                if (croppedResult) setCroppedImg(croppedResult);
+            }
         }
 
-        const scaleX = finalImgR.naturalWidth / finalImgR.width;
-        const scaleY = finalImgR.naturalHeight / finalImgR.height;
-        canvas.width = newCrop.width;
-        canvas.height = newCrop.height; 
-        const finalCtx = canvas.getContext('2d');
+        return doCrop(finalImgR, canvas, newCrop)
+      }
+
+    function doCrop(finalImgR, canvas, newCrop) {
+        console.log(`final image=(${finalImgR.naturalWidth},${finalImgR.naturalHeight},${finalImgR.width},${finalImgR.height})`)
+        let scaleX = finalImgR.naturalWidth / finalImgR.width
+        let scaleY = finalImgR.naturalHeight / finalImgR.height
+        console.log(`scale (${scaleX}, ${scaleY})`)
+        if (scaleX == 0 || Number.isNaN(scaleX) || scaleY == 0 || Number.isNaN(scaleY)) {
+            return null;
+        }
+        canvas.width = newCrop.width
+        canvas.height = newCrop.height
+        const finalCtx = canvas.getContext('2d')
+        console.log(`crop=(${newCrop.x},${newCrop.y},${newCrop.width},${newCrop.height})`)
 
         finalCtx.drawImage(
             finalImgR,
@@ -93,11 +115,11 @@ export default function LogoUploading() {
             0,
             newCrop.width,
             newCrop.height
-        );
-        
-        const base64Img = canvas.toDataURL('image/jpeg');
-        return base64Img;
-      }
+        )
+
+        const base64Img = canvas.toDataURL('image/jpeg')
+        return base64Img
+    }
 
     function sumbitCroppedImage(event) {
         event.preventDefault();
@@ -121,7 +143,7 @@ export default function LogoUploading() {
                 )
                 : (
                     <section className='drop-container'>
-                        <div {...getRootProps({classname: 'dropzone'})} style={{display: 'flex', 'flex-direction': 'column', width: '100%', 'justify-content': 'center', 'align-items': 'center', height: '480px', border: 'dotted 1px'}}>
+                        <div {...getRootProps({className: 'dropzone'})} style={{display: 'flex', 'flexDirection': 'column', width: '100%', 'justifyContent': 'center', 'alignItems': 'center', height: '480px', border: 'dotted 1px'}}>
                             <input {...getInputProps()} />
                             <div style={{className:'my-6'}}>Drag a profile photo here</div>
                             <div style={{className:'my-6'}}>-- or --</div>
