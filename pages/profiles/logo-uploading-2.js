@@ -76,15 +76,16 @@ export default function LogoUploading() {
 
     function rotating() {
             let canvas = document.createElement('canvas'); 
-            canvas.width = originRef.width
-            canvas.height = originRef.height
+            canvas.width = imageRef.width
+            canvas.height = imageRef.height
             const ctx = canvas.getContext('2d');
             // convert to degrees
-            const toRotate = rotateAngle * Math.PI / 180;
+            // const toRotate = rotateAngle * Math.PI / 180;
+            const toRotate = Math.PI / 2;
             console.log(`v4. canvas width=${canvas.width} height=${canvas.height} rotate=${rotateAngle} toRotate=${toRotate}`)
             ctx.translate(canvas.width/2, canvas.height/2);
             ctx.rotate(toRotate);
-            ctx.drawImage(originRef, -originRef.width/2, -originRef.height/2);
+            ctx.drawImage(imageRef, -imageRef.width/2, -imageRef.height/2);
             ctx.rotate(-toRotate);
             ctx.translate(-canvas.width/2, -canvas.height/2);
             // get base64 encoded rotated image
