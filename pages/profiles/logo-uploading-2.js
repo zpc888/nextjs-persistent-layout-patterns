@@ -5,14 +5,14 @@ import 'react-image-crop/dist/ReactCrop.css'
 
 export default function LogoUploading() {
     // const fileInputRef = useRef()  // HTMLInputElement
-    const croppedImgRef = useRef()  // HTMLInputElement
     const [rotateAngle, setRotateAngle] = useState(0)  
     const [image, setImage] = useState()   // File
     const [imageRef, setImageRef] = useState()   // HTMLImageElement
     const [croppedImg, setCroppedImg] = useState()   // Image URL??
-    const [rotatedImagePreview, setRotatedImagePreview] = useState()   // Image URL??
+    const [originRef, setOriginRef] = useState()   // HTMLImageElement
     // const [fileUrl, setFileUrl] = useState()   // Image URL??
     const [preview, setPreview] = useState()   // string
+    const [rotatedPreview, setRotatedPreview] = useState()   // string
     // const [crop, setCrop] = useState({aspect: 16 / 9})   // string
     const [crop, setCrop] = useState({unit: 'px', x: 120, y : 200, width: 200, height: 200})   // string
     const {getRootProps, getInputProps} = useDropzone({
@@ -26,6 +26,13 @@ export default function LogoUploading() {
     });
 
     useEffect(() => {
+        if (!originRef) {
+            console.log("set original image ref: ", imageRef)
+            setOriginRef(imageRef)
+        }
+    }, [imageRef])
+
+    useEffect(() => {
         if (image) {
             const reader = new FileReader()
             reader.onloadend = () => {
@@ -33,16 +40,25 @@ export default function LogoUploading() {
             }
             reader.readAsDataURL(image)
         } else {
+            setOriginRef(null)
             setPreview(null)
             setRotateAngle(0)
-            setCroppedImg(null)
+            setRotatedPreview(null)
         }
         if (imageRef) {
             console.log(`rotate ${rotateAngle} degrees`)
             // console.log(`rotate on ${imageRef}`)
-            imageRef.style.transform = `rotate(${rotateAngle}deg)`
+            // imageRef.style.transform = `rotate(${rotateAngle}deg)`
+            // makeClientCrop(crop)
         }
-    }, [image, rotateAngle])
+    }, [image])
+
+    useEffect(() => {
+        console.log(`rotated to ${rotateAngle} degrees`)
+        if (originRef) {
+            rotating()
+        }
+    }, [rotateAngle])
 
     function makeClientCrop(newCrop) {
         if (imageRef && newCrop.width && newCrop.height) {
@@ -58,46 +74,33 @@ export default function LogoUploading() {
         }
     }
 
-    function getCroppedImg(imageR, newCrop, fileName) {
-        let canvas = document.createElement('canvas');
-        // ctx.fillStyle = '#fff';
-        let finalImgR = imageR;
-        if (rotateAngle != 0) {
-            canvas.width = imageR.width
-            canvas.height = imageR.height
+    function rotating() {
+            let canvas = document.createElement('canvas'); 
+            canvas.width = originRef.width
+            canvas.height = originRef.height
             const ctx = canvas.getContext('2d');
             // convert to degrees
             const toRotate = rotateAngle * Math.PI / 180;
-            console.log(`canvas width=${canvas.width} height=${canvas.height} rotate=${rotateAngle} toRotate=${toRotate}`)
-            // find center point to rotate
+            console.log(`v4. canvas width=${canvas.width} height=${canvas.height} rotate=${rotateAngle} toRotate=${toRotate}`)
             ctx.translate(canvas.width/2, canvas.height/2);
             ctx.rotate(toRotate);
-            ctx.drawImage(imageR, -imageR.width/2, -imageR.height/2);
+            ctx.drawImage(originRef, -originRef.width/2, -originRef.height/2);
             ctx.rotate(-toRotate);
             ctx.translate(-canvas.width/2, -canvas.height/2);
             // get base64 encoded rotated image
             const rotatedImg = canvas.toDataURL('image/jpeg');
-            // create new Image source to continue
-            // finalImgR = rotateAngle === 90 || rotateAngle === -90 || rotateAngle === 270 || rotateAngle === -270 
-            //     ? new Image(imageR.height, imageR.width)
-            //     : new Image(imageR.width, imageR.height);
-            // finalImgR = new Image(imageR.width, imageR.height)
-            setRotatedImagePreview(rotatedImg);
-            finalImgR = new Image()
-            // canvas = document.createElement('canvas');
-            finalImgR.src = rotatedImg;
-            finalImgR.onload = function() {
-                console.log(`loaded final image=(${finalImgR.naturalWidth},${finalImgR.naturalHeight},${finalImgR.width},${finalImgR.height})`)
-                const croppedResult = doCrop(finalImgR, canvas, newCrop);
-                if (croppedResult) setCroppedImg(croppedResult);
-            }
-        }
+            setPreview(rotatedImg);
+            setRotatedPreview(rotatedImg);
+    }
 
-        return doCrop(finalImgR, canvas, newCrop)
+    function getCroppedImg(imageR, newCrop, fileName) {
+        let canvas = document.createElement('canvas');
+        // ctx.fillStyle = '#fff';
+        return doCrop(imageR, canvas, newCrop)
       }
 
     function doCrop(finalImgR, canvas, newCrop) {
-        console.log(`final image=(${finalImgR.naturalWidth},${finalImgR.naturalHeight},${finalImgR.width},${finalImgR.height})`)
+        console.log(`final image: nw=(${finalImgR.naturalWidth},nh=${finalImgR.naturalHeight},w=${finalImgR.width},h=${finalImgR.height})`)
         let scaleX = finalImgR.naturalWidth / finalImgR.width
         let scaleY = finalImgR.naturalHeight / finalImgR.height
         console.log(`scale (${scaleX}, ${scaleY})`)
@@ -140,7 +143,7 @@ export default function LogoUploading() {
                 { preview 
                 ?   ( <ReactCrop src={preview} crop={crop} 
                     ruleOfThirds 
-                    onImageLoaded={newImg => setImageRef(newImg)}
+                    onImageLoaded={newImg => { setImageRef(newImg) } }
                     onComplete={newCrop => makeClientCrop(newCrop)}
                     onChange={(newCrop, percentCrop) => setCrop(newCrop) }
                 /> 
@@ -159,26 +162,29 @@ export default function LogoUploading() {
                 {preview && imageRef && (<>
                 <button onClick={ (event) => {
                     event.preventDefault();
-                    setRotateAngle( (rotateAngle + 90)%360 )
+                    // setRotateAngle(90);
+                    setRotateAngle( (rotateAngle + 90)%360 );
                 }}>Rotate</button>{' '}
-                <input type="number" value={rotateAngle} onChange={e => setRotateAngle(e.target.value % 360)}></input>
-                {' '}
-                <button className='border-2 border-purple-500' onClick={ (event) => setImage(null) }>Re-Select</button>
+                {/* <input type="number" value={rotateAngle} onChange={e => setRotateAngle(e.target.value % 360)}></input> */}
                 </>)}
                 { preview && croppedImg && (
                     <>
-                    <img alt="Crop" style={{ maxWidth: '100%' }} src={croppedImg} ref={croppedImgRef} />
-                    <button onClick={ (event) => sumbitCroppedImage(event)}>Submit</button>
+                    <img alt="Crop" style={{ maxWidth: '100%' }} src={croppedImg} />
+                    <button onClick={ (event) => sumbitCroppedImage(event)}>Submit</button>{' '}
+                    <button className='border-2 border-purple-500 hover:border-gray-500' onClick={ (event) => setImage(null)}>
+                            Re-Select
+                    </button>
                     </>
                   )}
-                { preview && rotatedImagePreview && (
-                    <>
-                    <div>
-                        <div className="text-center text-2xl border-2 border-indigo-600">Canvas Rotated Image Output</div>
-                    <img alt="rotatedPreview" src={rotatedImagePreview} />
-                    </div>
-                    </>
-                )}
+                <div />
+                { rotatedPreview && (
+                           <>
+                           <div>
+                               <div className="text-center text-2xl border-2 border-indigo-600">Canvas Rotated Image Output</div>
+                               <img alt="rotatedImagePreview" style={{ maxWidth: '100%' }} src={rotatedPreview} />
+                           </div>
+                           </>
+                  )}
         </div>
     )
 }

@@ -21,7 +21,12 @@ export default function SiteLayout({ children }) {
                   </Link>
                   <Link href="/profiles/logo-uploading">
                     <a className="ml-8 font-medium text-gray-900">
-                      Profile Logo
+                      CSS Rotation
+                    </a>
+                  </Link>
+                  <Link href="/profiles/logo-uploading-2">
+                    <a className="ml-8 font-medium text-gray-900">
+                      Canvas Rotation
                     </a>
                   </Link>
                 </div>
